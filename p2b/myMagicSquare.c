@@ -42,24 +42,31 @@ typedef struct {
     int **magic_square; // pointer to heap allocated magic square
 } MagicSquare;
 
-/* TODO:
- * Prompts the user for the magic square's size, reads it,
- * checks if it's an odd number >= 3 (if not display the required
- * error message and exit), and returns the valid number.
- */
-int getSize() {
-    return 0;   
-} 
+//Structure that represents the location on a magic square
 typedef struct{
 	int row;
 	int col;
 } Location;
+
+/* Frees the memory for the inputted square
+ *
+ * square: square to free heap meory for
+ *
+ * post-condition: all memory freed for the square
+ */
 void freeSquareMemory(MagicSquare *square){
 	for (int i = 0; i < square->size; i++){
 		free(*((square->magic_square) + i));
 	}
 	free(square->magic_square);
 }
+
+/* Allocates heap memory for the magic square
+ *
+ * square: the magic square to allocate memory to
+ *
+ * post-condition: heap memory is allocated for the inputted square
+ */
 void allocateSquareMemory(MagicSquare *square){
 	square->magic_square = (int**)malloc(sizeof(int*) * square->size);
 	if ((square->magic_square) == NULL){
@@ -77,9 +84,26 @@ void allocateSquareMemory(MagicSquare *square){
 	}
 }
 
+/* Given an index and a square, returns the value of the
+ * square at that index
+ *
+ * square: a 2D pointer array representing the magic square
+ * row: the row index of the value 
+ * col: the column index of the value
+ * 
+ * retval: the value of the square at that location
+ */
 int getValue(int** square, int row, int col){
 	return *(*(square + row) + col);
 }
+
+/* Returns the next location for the creation of the 
+ * magic square.
+ *
+ * square: the MagicSquare structure that we are creating
+ * currLoc: the current location that we added a value to
+ * retval: the next location to add a value to
+ */
 Location getNextLoc(MagicSquare square, Location currLoc){
 	//Set the column location
 	Location loc = currLoc;
@@ -110,6 +134,7 @@ Location getNextLoc(MagicSquare square, Location currLoc){
 	}
 	return loc;
 }
+
 /* Makes a magic square of size n using the alternate 
  * Siamese magic square algorithm from assignment and 
  * returns a pointer to the completed MagicSquare struct.
@@ -168,22 +193,13 @@ void fileOutputMagicSquare(MagicSquare *square, char *filename) {
 	}
 }
 
-/* TODO:
- * Generates a magic square of the user specified size and
- * output the quare to the output filename
- * 
- * Be su
+/* Prompts the user for the magic square's size, reads it,
+ * checks if it's an odd number >= 3 (if not display the required
+ * error message and exit), and returns the valid number.
  *
- * Add description of required CLAs here
+ * retval: valid size of the square
  */
-int main(int argc, char **argv) {
-       	// Check input arguments to get output filename
-	if (argc != 2) {
-		printf("Usage: ./myMagicSquare <output_filename>\n");
-		exit(1);
-	}
-	
-	// Get magic square's size from user
+int getSize() {
 	int size;
 	printf("Enter magic square's size (odd integer >=3)\n");
 	scanf("%d", &size);
@@ -195,6 +211,25 @@ int main(int argc, char **argv) {
 		printf("Magic square size must be >= 3.\n");
 		exit(1);
 	}	
+    return size;   
+}
+
+/* 
+ * Generates a magic square of the user specified size and
+ * output the quare to the output filename 
+ *
+ * Must have one and only one argument for the filename of 
+ * the file that is being written to.
+ */
+int main(int argc, char **argv) {
+       	// Check input arguments to get output filename
+	if (argc != 2) {
+		printf("Usage: ./myMagicSquare <output_filename>\n");
+		exit(1);
+	}
+	
+	// Get magic square's size from user
+	int size = getSize();	
 	// 	 Generate the magic square by correctly interpreting 
 	//       the algorithm(s) in the write-up or by writing or your own.  
 	//       You must confirm that your program produces a 
