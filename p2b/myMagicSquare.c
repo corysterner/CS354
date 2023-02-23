@@ -59,6 +59,7 @@ void freeSquareMemory(MagicSquare *square){
 		free(*((square->magic_square) + i));
 	}
 	free(square->magic_square);
+	free(square);
 }
 
 /* Allocates heap memory for the magic square
@@ -142,20 +143,28 @@ Location getNextLoc(MagicSquare square, Location currLoc){
  * n the number of rows and columns
  */
 MagicSquare *generateMagicSquare(int n) {
-	static MagicSquare square;
-      	square.size = n;
-	allocateSquareMemory(&square);	
-	
-	//Set initial location
-	Location loc = {0, (square.size - 1)/2};
-
-	//Loop over locations and create square	
-	for (int i = 1; i <= (square.size * square.size); i++){
-		*(*(square.magic_square + loc.row) + loc.col) = i;
-		loc = getNextLoc(square, loc);
+	//Allocate memory for pointer to magic square and intialize
+	MagicSquare *squarePtr = malloc(sizeof(MagicSquare));
+	if (squarePtr == NULL){
+		printf("Memory could not be allocated\n");
+		free(squarePtr);
+		exit(1);
 	}
 
-	return &square;    
+	//Initiate magic square components
+      	squarePtr->size = n;
+	allocateSquareMemory(squarePtr);	
+	
+	//Set initial location
+	Location loc = {0, (squarePtr->size - 1)/2};
+
+	//Loop over locations and create square	
+	for (int i = 1; i <= (squarePtr->size * squarePtr->size); i++){
+		*(*(squarePtr->magic_square + loc.row) + loc.col) = i;
+		loc = getNextLoc(*squarePtr, loc);
+	}
+
+	return squarePtr;    
 } 
 
 /*   
