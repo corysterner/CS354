@@ -50,7 +50,7 @@ typedef struct{
 
 /* Frees the memory for the inputted square
  *
- * square: square to free heap meory for
+ * square: the magic square to free heap meory for
  *
  * post-condition: all memory freed for the square
  */
