@@ -74,7 +74,9 @@ int alloc_size;
  * TODO: add global variables needed by your function
  */
 
- 
+int getCurrentSize(int size_status){
+	return (size_status - (size_status % 8));
+}
 /* 
  * Function for allocating 'size' bytes of heap memory.
  * Argument size: requested size for the payload
@@ -110,8 +112,35 @@ int alloc_size;
  * Tips: Be careful with pointer arithmetic and scale factors.
  */
 void* balloc(int size) {     
-    //TODO: Your code goes in here.
-    return NULL;
+	//TODO: Your code goes in here.
+	// Normalize size to memory requirements
+	int size = size + (8 - (size % 8)); 
+	
+	int curr_size;
+	blockHeader *current = heap_start;
+	blockHeader *best_fit = NULL;
+	
+	while (current->size_status != 1){
+		curr_size = getCurrentSize(current->size_status);
+		
+		if (!(current->size_status & 1) && (curr_size >= size)){
+			if (best_fit == NULL){
+				best_fit = current;
+			}
+			else if (getCurrentSize(best_fit->size_status) > curr_size){
+				best_fit = current; 
+			}
+			
+			if (getCurrentSize(best_fit->size_status) == size){
+				break;
+			}
+		}
+	}
+	if (best_fit == NULL){
+		return NULL;
+	}
+	
+	
 } 
  
 /* 
