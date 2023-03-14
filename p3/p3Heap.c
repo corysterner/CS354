@@ -77,8 +77,28 @@ int alloc_size;
 int getSize(int size_status){
 	return (size_status - (size_status % 8));
 }
+int getPBit(blockHeader* header){
+	return (header->size_status >> 1) % 2;
+}
 void createFooter(blockHeader* free_block){
-
+	int free_size = getSize(free_block->size_status);
+	blockHeader *footer = (blockHeader*)((void*)free_block + free_size);
+	footer->size_status = free_size;
+}
+void createHeader(blockHeader* header_start, size, p_bit, a_bit){
+	header_start->size_status = size + (2 * p_val) + a_val; 
+	
+	//If this block is empty create a footer
+	if (a_val == 0){
+		createFooter(header_start);
+	}
+}
+void split(blockHeader* split_start, size){
+	int block_size = getSize(split_start->size_status);
+	createHeader(split_start, size, getPBit(split_start), 1);
+	
+	split_new = (blockHeaer*)((void*)split_start + size);
+	createHeader(split_new, block_size-size, 1, 0);
 }
 /* 
  * Function for allocating 'size' bytes of heap memory.
@@ -146,7 +166,7 @@ void* balloc(int size) {
 	}
 	
 	if (getSize(best_fit->size_status) != size){
-		split(best_fit);
+		split(best_fit, size);
 	}	
 	
 	return best_fit;
