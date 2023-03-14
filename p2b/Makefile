@@ -8,12 +8,13 @@ cleantest:
 	rm -f *.out
 
 testleaks:
-	valgrind --leak-check=full \
+	valgrind -s \
+		--leak-check=full \
 		--error-exitcode=1 \
 		--show-leak-kinds=all \
+		--track-origins=yes \
 		./myMagicSquare leaks.out \
 		< test3.in
-
-
 test:
-	./myMagicSquare test.out < test3.in
+	./myMagicSquare test.out < test1.in
+	./myMagicSquare test9.out < test9.in

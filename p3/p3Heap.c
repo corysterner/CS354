@@ -74,8 +74,11 @@ int alloc_size;
  * TODO: add global variables needed by your function
  */
 
-int getCurrentSize(int size_status){
+int getSize(int size_status){
 	return (size_status - (size_status % 8));
+}
+void createFooter(blockHeader* free_block){
+
 }
 /* 
  * Function for allocating 'size' bytes of heap memory.
@@ -121,7 +124,7 @@ void* balloc(int size) {
 	blockHeader *best_fit = NULL;
 	
 	while (current->size_status != 1){
-		curr_size = getCurrentSize(current->size_status);
+		curr_size = getSize(current->size_status);
 		
 		if (!(current->size_status & 1) && (curr_size >= size)){
 			if (best_fit == NULL){
@@ -131,16 +134,22 @@ void* balloc(int size) {
 				best_fit = current; 
 			}
 			
-			if (getCurrentSize(best_fit->size_status) == size){
+			if (getSize(best_fit->size_status) == size){
 				break;
 			}
 		}
+
+		current = (blockheader*)((void*)current + curr_size); 
 	}
 	if (best_fit == NULL){
 		return NULL;
 	}
 	
+	if (getSize(best_fit->size_status) != size){
+		split(best_fit);
+	}	
 	
+	return best_fit;
 } 
  
 /* 
@@ -225,6 +234,12 @@ int init_heap(int sizeOfRegion) {
         return -1;
     }
   
+    allocated_once = 1;
+
+    // for double word alignment and end mark
+    alloc_size -= 8;
+
+    // Initially there is only one big free block in the heap.
     allocated_once = 1;
 
     // for double word alignment and end mark
@@ -333,9 +348,3 @@ void disp_heap() {
     fflush(stdout);
 
     return;  
-} 
-
-
-// end p3Heap.c (Spring 2023)                                         
-
-
