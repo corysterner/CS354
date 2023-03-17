@@ -221,7 +221,7 @@ int bfree(void *ptr) {
 	
 	blockHeader* free_header = ptr - sizeof(blockHeader);
 	createHeader(free_header, getSize(free_header->size_status), getPBit(free_header), 0);
-	return -1;
+	return 0;
 } 
 
 /*
