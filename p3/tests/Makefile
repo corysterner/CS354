@@ -39,3 +39,8 @@ partC:
 clean:
 	rm -rf ${TARGETS} *.o
 
+load:
+	git pull
+	cd ..
+	make
+	cd tests

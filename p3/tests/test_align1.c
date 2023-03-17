@@ -7,6 +7,7 @@
 int main() {
    assert(init_heap(4096) == 0);
    int* ptr = (int*) balloc(sizeof(int));
+   disp_heap();
    assert(ptr != NULL);
    assert(((int)ptr) % 8 == 0);
    exit(0);
