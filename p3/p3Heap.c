@@ -105,7 +105,7 @@ void createHeader(blockHeader* header_start, int size, int p_bit, int a_bit){
 	}
 	else {
 		blockHeader* next_header = getNextHeader(header_start);
-		if (!(getPBit(next_header)){
+		if (!(getPBit(next_header))){
 			next_header->size_status + 2;	
 		}
 	}
