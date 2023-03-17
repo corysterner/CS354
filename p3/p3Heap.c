@@ -215,11 +215,13 @@ int bfree(void *ptr) {
 		return -1;
 	}
 	
-	if (isFree(ptr)){
+	blockHeader* free_header = ptr - sizeof(blockHeader);
+	
+	if (isFree(free_header)){
 		return -1;
 	}
 	
-	blockHeader* free_header = ptr - sizeof(blockHeader);
+	
 	createHeader(free_header, getSize(free_header->size_status), getPBit(free_header), 0);
 	return 0;
 } 
