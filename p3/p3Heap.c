@@ -86,7 +86,7 @@ void createFooter(blockHeader* free_block){
 	footer->size_status = free_size;
 }
 void createHeader(blockHeader* header_start, int size, int p_bit, int a_bit){
-	header_start->size_status = size + (2 * p_val) + a_val; 
+	header_start->size_status = size + (2 * p_bit) + a_bit; 
 	
 	//If this block is empty create a footer
 	if (a_val == 0){
@@ -97,7 +97,7 @@ void split(blockHeader* split_start, int size){
 	int block_size = getSize(split_start->size_status);
 	createHeader(split_start, size, getPBit(split_start), 1);
 	
-	split_new = (blockHeaer*)((void*)split_start + size);
+	blockHeader* split_new = (blockHeader*)((void*)split_start + size);
 	createHeader(split_new, block_size-size, 1, 0);
 }
 /* 
