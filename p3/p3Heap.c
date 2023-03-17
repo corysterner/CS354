@@ -207,11 +207,11 @@ int bfree(void *ptr) {
 		return -1;
 	}
 	
-	if (ptr % 8 != 0){
+	if ((ptr % 8) != 0){
 		return -1;
 	}
 	
-	if ((ptr < heap_start) || (ptr > ((void*)heap_start + alloc_size - sizeof(blockHeader))){
+	if (((unsigned long int)ptr < (unsigned long int)heap_start) || (ptr > ((void*)heap_start + alloc_size - sizeof(blockHeader)))){
 		return -1;
 	}
 	
