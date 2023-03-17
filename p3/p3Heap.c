@@ -85,7 +85,7 @@ void createFooter(blockHeader* free_block){
 	blockHeader *footer = (blockHeader*)((void*)free_block + free_size);
 	footer->size_status = free_size;
 }
-void createHeader(blockHeader* header_start, size, p_bit, a_bit){
+void createHeader(blockHeader* header_start, int size, int p_bit, int a_bit){
 	header_start->size_status = size + (2 * p_val) + a_val; 
 	
 	//If this block is empty create a footer
@@ -93,7 +93,7 @@ void createHeader(blockHeader* header_start, size, p_bit, a_bit){
 		createFooter(header_start);
 	}
 }
-void split(blockHeader* split_start, size){
+void split(blockHeader* split_start, int size){
 	int block_size = getSize(split_start->size_status);
 	createHeader(split_start, size, getPBit(split_start), 1);
 	
@@ -136,6 +136,7 @@ void split(blockHeader* split_start, size){
  */
 void* balloc(int size) {     
 	
+	size = size + sizeof(blockHeader);
 	// Normalize size to memory requirements
 	if (size % 8 != 0){
 		size = size + (8 - (size % 8)); 
@@ -162,7 +163,7 @@ void* balloc(int size) {
 			}
 		}
 
-		current = (blockheader*)((void*)current + curr_size); 
+		current = (blockHeader*)((void*)current + curr_size); 
 	}
 	if (best_fit == NULL){
 		return NULL;
@@ -371,3 +372,4 @@ void disp_heap() {
     fflush(stdout);
 
     return;  
+}
