@@ -82,7 +82,7 @@ int getPBit(blockHeader* header){
 }
 void createFooter(blockHeader* free_block){
 	int free_size = getSize(free_block->size_status);
-	blockHeader *footer = (blockHeader*)((void*)free_block + free_size);
+	blockHeader *footer = (blockHeader*)((void*)free_block + free_size - 4);
 	footer->size_status = free_size;
 }
 void createHeader(blockHeader* header_start, int size, int p_bit, int a_bit){
@@ -327,7 +327,7 @@ void disp_heap() {
     fprintf(stdout, 
 	"---------------------------------------------------------------------------------\n");
   
-    while (current->size_status != 1) {
+    while (current->size_status != 1 && counter < 2) {
         t_begin = (char*)current;
         t_size = current->size_status;
     
