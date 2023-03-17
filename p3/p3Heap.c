@@ -327,7 +327,7 @@ void disp_heap() {
     fprintf(stdout, 
 	"---------------------------------------------------------------------------------\n");
   
-    while (current->size_status != 1 && counter < 2) {
+    while (current->size_status != 1 && counter < 5) {
         t_begin = (char*)current;
         t_size = current->size_status;
     
