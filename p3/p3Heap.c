@@ -135,8 +135,9 @@ void split(blockHeader* split_start, int size){
  * Tips: Be careful with pointer arithmetic and scale factors.
  */
 void* balloc(int size) {     
-	
+	//Add the size of the header to the total size needed
 	size = size + sizeof(blockHeader);
+	
 	// Normalize size to memory requirements
 	if (size % 8 != 0){
 		size = size + (8 - (size % 8)); 
@@ -147,30 +148,38 @@ void* balloc(int size) {
 	blockHeader *current = heap_start;
 	blockHeader *best_fit = NULL;
 	
+	//Loop over all values from start to finish
 	while (current->size_status != 1){
 		curr_size = getSize(current->size_status);
 		
+		//If there is enough available space in the current block check if it is the best fit
 		if (!(current->size_status & 1) && (curr_size >= size)){
+			
+			//If no matches yet set best fit to current free area
 			if (best_fit == NULL){
 				best_fit = current;
 			}
+			
+			//If the current area is closer in size set current to the best fit
 			else if (getSize(best_fit->size_status) > curr_size){
 				best_fit = current; 
 			}
 			
+			//If there is an exact fit break the loop
 			if (getSize(best_fit->size_status) == size){
 				break;
 			}
 			
 		}
-
 		current = (blockHeader*)((void*)current + curr_size); 
-		printf("%08x", (unsigned int)(best_fit));
 	}
+	
+	//If no block was allocated return NULL
 	if (best_fit == NULL){
 		return NULL;
 	}
 	
+	//If a block that was larger than the size needed was allocated split it
 	if (getSize(best_fit->size_status) != size){
 		split(best_fit, size);
 	}	
