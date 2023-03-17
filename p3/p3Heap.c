@@ -161,9 +161,11 @@ void* balloc(int size) {
 			if (getSize(best_fit->size_status) == size){
 				break;
 			}
+			
 		}
 
 		current = (blockHeader*)((void*)current + curr_size); 
+		printf("%08x", (unsigned int)(best_fit));
 	}
 	if (best_fit == NULL){
 		return NULL;
