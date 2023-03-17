@@ -265,6 +265,7 @@ int coalesce() {
 		}
 		current = getNextHeader(current); 
 	}
+	return coalesced;
 }
 
  
