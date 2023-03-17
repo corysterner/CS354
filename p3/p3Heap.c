@@ -199,7 +199,10 @@ void* balloc(int size) {
 	//If a block that was larger than the size needed was allocated split it
 	if (getSize(best_fit->size_status) != size){
 		split(best_fit, size);
-	}	
+	}
+	else{
+		createHeader(best_fit, size, getPBit(best_fit), 1);
+	}
 	
 	return (void*)best_fit + sizeof(blockHeader);
 } 
