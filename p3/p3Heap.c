@@ -215,7 +215,7 @@ int bfree(void *ptr) {
 		return -1;
 	}
 	
-	blockHeader* free_header = ptr - sizeof(blockHeader);
+	blockHeader* free_header = ptr - (void*)sizeof(blockHeader);
 	
 	if (isFree(free_header)){
 		return -1;
