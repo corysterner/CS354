@@ -252,6 +252,7 @@ int bfree(void *ptr) {
  */
 int coalesce() {
 	blockHeader* current = heap_start;
+	int coalesced = 0;
 	while (current->size_status != 1){
 		
 		//If there is enough available space in the current block check if it is the best fit
@@ -259,7 +260,8 @@ int coalesce() {
 			while (isFree(getNextHeader(current))){
 				current->size_status += getSize(getNextHeader(current));
 			}
-			createHeader(current, getSize(current), getPBit(current), 0);			
+			createHeader(current, getSize(current), getPBit(current), 0);		
+			coalesced = 1;
 		}
 		current = getNextHeader(current); 
 	}
