@@ -207,7 +207,7 @@ int bfree(void *ptr) {
 		return -1;
 	}
 	
-	if ((ptr % 8) != 0){
+	if (((unsigned int)ptr % 8) != 0){
 		return -1;
 	}
 	
