@@ -188,7 +188,7 @@ void* balloc(int size) {
 			}
 			
 		}
-		current = (blockHeader*)((void*)current + curr_size); 
+		current = getNextHeader(current); 
 	}
 	
 	//If no block was allocated return NULL
