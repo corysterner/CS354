@@ -135,10 +135,13 @@ void split(blockHeader* split_start, size){
  * Tips: Be careful with pointer arithmetic and scale factors.
  */
 void* balloc(int size) {     
-	//TODO: Your code goes in here.
-	// Normalize size to memory requirements
-	int size = size + (8 - (size % 8)); 
 	
+	// Normalize size to memory requirements
+	if (size % 8 != 0){
+		size = size + (8 - (size % 8)); 
+	}
+	
+	//Initialize variables for loop
 	int curr_size;
 	blockHeader *current = heap_start;
 	blockHeader *best_fit = NULL;
