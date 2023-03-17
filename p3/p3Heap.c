@@ -251,8 +251,17 @@ int bfree(void *ptr) {
  * Updated header size_status and footer size_status as needed.
  */
 int coalesce() {
-    //TODO: Your code goes in here.
-	return 0;
+	while (current->size_status != 1){
+		
+		//If there is enough available space in the current block check if it is the best fit
+		if (isFree(current)){
+			while (isFree(getNextHeader(current)){
+				current->size_status += getSize(getNextHeader(current));
+			}
+			createHeader(current, getSize(current), getPBit(current), 0);			
+		}
+		current = getNextHeader(current); 
+	}
 }
 
  
