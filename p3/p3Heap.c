@@ -89,7 +89,7 @@ void createHeader(blockHeader* header_start, int size, int p_bit, int a_bit){
 	header_start->size_status = size + (2 * p_bit) + a_bit; 
 	
 	//If this block is empty create a footer
-	if (a_val == 0){
+	if (a_bit == 0){
 		createFooter(header_start);
 	}
 }
@@ -154,7 +154,7 @@ void* balloc(int size) {
 			if (best_fit == NULL){
 				best_fit = current;
 			}
-			else if (getCurrentSize(best_fit->size_status) > curr_size){
+			else if (getSize(best_fit->size_status) > curr_size){
 				best_fit = current; 
 			}
 			
