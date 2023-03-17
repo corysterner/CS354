@@ -83,10 +83,18 @@ int getPBit(blockHeader* header){
 int isFree(blockHeader* header){
 	return !(header->size_status & 1);	
 }
+blockHeader* getNextHeader(blockHeader* header){
+	return (blockHeader*)((void*)header + getSize(header->size_status)); 
+}
 void createFooter(blockHeader* free_block){
 	int free_size = getSize(free_block->size_status);
 	blockHeader *footer = (blockHeader*)((void*)free_block + free_size - 4);
 	footer->size_status = free_size;
+	
+	blockHeader next_header = getNextHeader(free_block);
+	if (getPBit(next_header)){
+		next_header->size_status -= 2;	
+	}
 }
 void createHeader(blockHeader* header_start, int size, int p_bit, int a_bit){
 	header_start->size_status = size + (2 * p_bit) + a_bit; 
