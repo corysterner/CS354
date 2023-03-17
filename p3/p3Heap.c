@@ -103,6 +103,12 @@ void createHeader(blockHeader* header_start, int size, int p_bit, int a_bit){
 	if (a_bit == 0){
 		createFooter(header_start);
 	}
+	else {
+		blockHeader* next_header = getNextHeader(header_start);
+		if (!(getPBit(next_header)){
+			next_header->size_status + 2;	
+		}
+	}
 }
 void split(blockHeader* split_start, int size){
 	int block_size = getSize(split_start->size_status);
