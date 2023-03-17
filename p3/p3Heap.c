@@ -146,9 +146,6 @@ void* balloc(int size) {
 	//Initialize variables for loop
 	int curr_size;
 	blockHeader *current = heap_start;
-	printf("%08x\n", (unsigned int)(current));
-	printf("%08x\n", (unsigned int)(current+4));
-	printf("%08x\n", (unsigned int)(current+sizeof(blockHeader)));
 	blockHeader *best_fit = NULL;
 	
 	//Loop over all values from start to finish
@@ -187,7 +184,7 @@ void* balloc(int size) {
 		split(best_fit, size);
 	}	
 	
-	return best_fit;
+	return (void*)best_fit + sizeof(blockHeader);
 } 
  
 /* 
