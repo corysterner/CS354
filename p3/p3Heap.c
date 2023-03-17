@@ -145,7 +145,7 @@ void* balloc(int size) {
 	
 	//Initialize variables for loop
 	int curr_size;
-	blockHeader *current = heap_start - 1;
+	blockHeader *current = heap_start - sizeof(blockHeader);
 	blockHeader *best_fit = NULL;
 	
 	//Loop over all values from start to finish
