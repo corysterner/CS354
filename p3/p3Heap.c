@@ -80,6 +80,9 @@ int getSize(int size_status){
 int getPBit(blockHeader* header){
 	return (header->size_status >> 1) % 2;
 }
+int isFree(blockHeader* header){
+	return !(header->size_status & 1);	
+}
 void createFooter(blockHeader* free_block){
 	int free_size = getSize(free_block->size_status);
 	blockHeader *footer = (blockHeader*)((void*)free_block + free_size - 4);
@@ -153,7 +156,7 @@ void* balloc(int size) {
 		curr_size = getSize(current->size_status);
 		
 		//If there is enough available space in the current block check if it is the best fit
-		if (!(current->size_status & 1) && (curr_size >= size)){
+		if ((isFree(current)) && (curr_size >= size)){
 			
 			//If no matches yet set best fit to current free area
 			if (best_fit == NULL){
@@ -200,8 +203,25 @@ void* balloc(int size) {
  * - Update header(s) and footer as needed.
  */                    
 int bfree(void *ptr) {    
-    //TODO: Your code goes in here.
-    return -1;
+	if (ptr == NULL){
+		return -1;
+	}
+	
+	if (ptr % 8 != 0){
+		return -1;
+	}
+	
+	if ((ptr < heap_start) || (ptr > ((void*)heap_start + alloc_size - sizeof(blockHeader))){
+		return -1;
+	}
+	
+	if (isFree(ptr)){
+		return -1;
+	}
+	
+	blockHeader* free_header = ptr - sizeof(blockHeader);
+	createHeader(free_header, getSize(free_header->size_status), getPBit(free_header), 0);
+	return -1;
 } 
 
 /*
