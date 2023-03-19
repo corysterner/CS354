@@ -73,22 +73,62 @@ int alloc_size;
  * Additional global variables may be added as needed below
  * TODO: add global variables needed by your function
  */
-
+/*
+ * Given a block header pointer returns the size of the 
+ * memory block.
+ *
+ * header: blockHeader pointer
+ *
+ * retval: size of the block
+ */
 int getSize(blockHeader* header){
 	return (header->size_status - (header->size_status % 8));
 }
+
+/*
+ * Given a block header return the p-bit for that header
+ *
+ * header: blockHeader pointer
+ *
+ * retval: the value of the p-bit
+ */
 int getPBit(blockHeader* header){
 	return (header->size_status >> 1) % 2;
 }
+
+/*
+ * Given a block header returns whether the block is free
+ *
+ * header: blockHeader pointer
+ *
+ * retval: 1 - if free
+ * 	   0 - otherwise
+ */
 int isFree(blockHeader* header){
 	return !(header->size_status & 1);	
 }
+
+/*
+ * Get the pointer to the next block header
+ *
+ * header: current block header
+ *
+ * retval: the block header of the next block
+ */
 blockHeader* getNextHeader(blockHeader* header){
 	return (blockHeader*)((void*)header + getSize(header)); 
 }
+
+/*
+ * Creates a footer for a free block
+ * 
+ * free_block: the pointer to the header of the free block
+ */
 void createFooter(blockHeader* free_block){
 	int free_size = getSize(free_block);
-	blockHeader *footer = (blockHeader*)((void*)free_block + free_size - 4);
+
+	//Initialize footer
+	blockHeader *footer = (blockHeader*)((void*)free_block + free_size - sizeof(blockHeader*));
 	footer->size_status = free_size;
 	
 	blockHeader *next_header = getNextHeader(free_block);
@@ -96,6 +136,15 @@ void createFooter(blockHeader* free_block){
 		next_header->size_status -= 2;	
 	}
 }
+
+/* 
+ * Creates a header to a memory location
+ *
+ * header_start: a blockHeader 
+ * size: the size of the block
+ * p_bit: the setting of the p-bit for the header
+ * a_bit: the setting of the a-bit for the header
+ */
 void createHeader(blockHeader* header_start, int size, int p_bit, int a_bit){
 	header_start->size_status = size + (2 * p_bit) + a_bit; 
 	
@@ -103,6 +152,8 @@ void createHeader(blockHeader* header_start, int size, int p_bit, int a_bit){
 	if (a_bit == 0){
 		createFooter(header_start);
 	}
+
+	//Otherwise set the p-bit of the next header
 	else {
 		blockHeader* next_header = getNextHeader(header_start);
 		if (!(getPBit(next_header))){
@@ -110,13 +161,26 @@ void createHeader(blockHeader* header_start, int size, int p_bit, int a_bit){
 		}
 	}
 }
+
+/*
+ * Function for splitting a block of heap memory when
+ * the block is larger than the amount being allocated.
+ * Creates an allocated block followed by a free block.
+ *
+ * split_start: blockHeader pointer to the start of the block being split
+ * size: size of the memory being allocated 
+ */
 void split(blockHeader* split_start, int size){
 	int block_size = getSize(split_start);
+	
+	//Create the allocated header
 	createHeader(split_start, size, getPBit(split_start), 1);
 	
+	//Create the free block
 	blockHeader* split_new = (blockHeader*)((void*)split_start + size);
 	createHeader(split_new, block_size-size, 1, 0);
 }
+
 /* 
  * Function for allocating 'size' bytes of heap memory.
  * Argument size: requested size for the payload
@@ -188,6 +252,8 @@ void* balloc(int size) {
 			}
 			
 		}
+
+		//Go to the next block header
 		current = getNextHeader(current); 
 	}
 	
@@ -219,26 +285,31 @@ void* balloc(int size) {
  * - Return -1 if ptr block is already freed.
  * - Update header(s) and footer as needed.
  */                    
-int bfree(void *ptr) {    
+int bfree(void *ptr) {
+    	//null check the pointer	
 	if (ptr == NULL){
 		return -1;
 	}
 	
+	//Check if the pts is a multiple of 8
 	if (((unsigned int)ptr % 8) != 0){
 		return -1;
 	}
 	
+	//Check if the ptr is inside the heap space
 	if (((unsigned long int)ptr < (unsigned long int)heap_start) || (ptr > ((void*)heap_start + alloc_size - sizeof(blockHeader)))){
 		return -1;
 	}
 	
+	//Find the header of the pointer
 	blockHeader* free_header = (blockHeader*)(ptr - sizeof(blockHeader));
-
+	
+	//Check if the current header is free
 	if (isFree(free_header)){
 		return -1;
 	}
 	
-	
+	//Free the current header
 	createHeader(free_header, getSize(free_header), getPBit(free_header), 0);
 	return 0;
 } 
@@ -253,16 +324,22 @@ int bfree(void *ptr) {
 int coalesce() {
 	blockHeader* current = heap_start;
 	int coalesced = 0;
+
+	//Loop over all block headers
 	while (current->size_status != 1){
 		
 		//If there is enough available space in the current block check if it is the best fit
 		if (isFree(current)){
+			
+			//Coalesce all adjacent blocks
 			while (isFree(getNextHeader(current))){
 				current->size_status += getSize(getNextHeader(current));
 			}
 			createHeader(current, getSize(current), getPBit(current), 0);		
 			coalesced = 1;
 		}
+
+		//Get the next block header
 		current = getNextHeader(current); 
 	}
 	return coalesced;
