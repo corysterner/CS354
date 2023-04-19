@@ -129,10 +129,6 @@ void set_t_size(){
 	t_size = 64 - b - s;
 }
 
-void create_t_mask(){
-	t_mask = (1 << t_size) - 1;
-}
-
 void create_s_mask(){
 	s_mask = ((1ull << (64 - t_size - b)) - 1) << b;
 }
@@ -148,7 +144,6 @@ void create_b_mask(){
 void init_cache() {        
     S = 1 << s;	
     set_t_size();
-    create_t_mask();
     create_s_mask();
     create_b_mask();
 
@@ -191,7 +186,7 @@ void free_cache() {
 }
 
 mem_addr_t get_t_bit(mem_addr_t addr){
-	return (addr & t_mask) >> (64 - t_size);
+	return (addr >> (b + s));
 }
 
 mem_addr_t get_s_bit(mem_addr_t addr){

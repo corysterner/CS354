@@ -8,3 +8,4 @@ all: csim.c
 # Clean the src dirctory
 clean:
 	rm -f csim
+	rm -f *.out
