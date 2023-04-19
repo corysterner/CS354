@@ -125,28 +125,34 @@ mem_addr_t s_mask;
 mem_addr_t b_mask;
 unsigned int t_size; 
 
-inline void set_t_size(){
+void set_t_size(){
 	t_size = 64 - b - s;
 }
 
-inline void create_t_mask(){
+void create_t_mask(){
 	t_mask = (1 << t_size) - 1;
 }
 
-inline void create_s_mask(){
-	s_mask = ((1 << (64 - t_size)) - 1) << b;
+void create_s_mask(){
+	s_mask = ((1ull << (64 - t_size - b)) - 1) << b;
 }
 
-inline void create_b_mask(){
-	b_mask = (1 << (64 - b)) - 1;
+void create_b_mask(){
+	b_mask = (1ull << (64 - b)) - 1;
 }
 /* 
  * init_cache:
  * Allocates the data structure for a cache with S sets and E lines per set.
  * Initializes all valid bits and tags with 0s.
  */                    
-void init_cache() {          
-     // Allocate memory for the cache data structure
+void init_cache() {        
+    S = 1 << s;	
+    set_t_size();
+    create_t_mask();
+    create_s_mask();
+    create_b_mask();
+
+    // Allocate memory for the cache data structure
     cache = malloc(sizeof(cache_set_t) * S);
     if (cache == NULL){
 	free(cache);
@@ -210,7 +216,7 @@ void init_header(){
 		free(headers);
 		exit(1);
 	}
-	for (int set = 0; set < S; s++){
+	for (int set = 0; set < S; set++){
 		headers[set].head = 0;
 		headers[set].tail = E-1;
 	}
@@ -242,6 +248,9 @@ void access_data(mem_addr_t addr) {
 			line->tag = get_t_bit(addr);
 			line->valid = 1;
 			miss_cnt++;
+			if (verbosity){
+				printf("%s","miss ");
+			}
 			allocated = 1;
 			break;
 		}
@@ -249,22 +258,34 @@ void access_data(mem_addr_t addr) {
 		//Move node to front if already present
 		if (line->tag == tag){
 			if (set_header->tail == curr_line){
-				line->next = set_header->head;
 				set_header->head = curr_line;
 				set_header->tail = line->prev;
-				cache[set][line->next].prev = curr_line;
+			}
+			else if (set_header->head == curr_line){
+
 			}
 			else{
 				//Move hit line to front of list
+				//Remove the node from the list
 				cache[set][line->next].prev = line->prev;
+				cache[set][line->prev].next = line->next;
+
+				//set the node in its new place
 				line->prev = set_header->tail;
 				line->next = set_header->head;
+				
+				//set loop for current tail and header
+				cache[set][line->next].prev = curr_line;
+				cache[set][line->prev].next = curr_line;
+
+				//set the new header
 				set_header->head = curr_line;
-				//Update prev of next line
-				cache[set][cache[set][line->prev].next].prev = curr_line;
 			}
 			allocated = 1;
 			hit_cnt++;
+			if (verbosity){
+				printf("%s", "hit ");
+			}
 			break;
 		}
 		
@@ -275,9 +296,31 @@ void access_data(mem_addr_t addr) {
 
 	//Remove a declared line in favor of the new tag
 	if (allocated == 0){
-		set_header->tail = cache[set][set_header->tail].prev;
-		set_header->head = cache[set][set_header->head].prev;
-		cache[set][set_header->head].tag = tag;
+
+		//Can only happen if it is the only one in the list
+		if ((line->tag) == tag && (line->valid) == 1){
+			hit_cnt++;
+			if (verbosity){
+				printf("%s", "hit ");
+			}
+		}
+		else{
+			set_header->tail = cache[set][set_header->tail].prev;
+			set_header->head = cache[set][set_header->head].prev;
+			cache[set][set_header->head].tag = tag;
+			miss_cnt++;
+			if (verbosity){
+				printf("%s", "miss ");
+			}
+			if (cache[set][set_header->head].valid == 1){
+				evict_cnt++;
+				if (verbosity){
+					printf("%s", "eviction ");
+				}		
+			}
+			cache[set][set_header->head].valid = 1;
+
+		}
 	}
 		
 }
